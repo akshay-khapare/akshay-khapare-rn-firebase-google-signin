@@ -64,9 +64,9 @@ const checkPlayServices = async (): Promise<void> => {
 
 /**
  * Signs in the user with Google and Firebase
- * @returns Promise resolving to GoogleSignInResult
+ * @returns Promise resolving to FirebaseAuthTypes.UserCredential
  */
-export const googleSignIn = async (): Promise<GoogleSignInResult> => {
+export const googleSignIn = async (): Promise<FirebaseAuthTypes.UserCredential> => {
   try {
     // Ensure clean state by signing out first
     await signOut();
@@ -84,7 +84,7 @@ export const googleSignIn = async (): Promise<GoogleSignInResult> => {
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
     const userCredential = await auth().signInWithCredential(googleCredential);
 
-    return { userCredential };
+    return userCredential;
   } catch (error: any) {
     console.error("[GoogleSignIn] Sign-in failed:", error);
 
@@ -108,10 +108,7 @@ export const googleSignIn = async (): Promise<GoogleSignInResult> => {
       errorCode = GoogleSignInErrorCode.NETWORK_ERROR;
     }
 
-    return {
-      userCredential: null,
-      error: new AppError(errorMessage, errorCode),
-    };
+    throw new AppError(errorMessage, errorCode);
   }
 };
 

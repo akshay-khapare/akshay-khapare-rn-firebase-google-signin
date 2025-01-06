@@ -94,17 +94,37 @@ init({
 ### Sign In
 
 ```typescript
-import { googleSignIn } from '@akshay-khapare/rn-firebase-google-signin';
+import { googleSignIn, GoogleSignInErrorCode } from '@akshay-khapare/rn-firebase-google-signin';
 
 try {
-  const result = await googleSignIn();
-  if (result.userCredential) {
-    // User successfully signed in
-    const user = result.userCredential.user;
-    console.log('User ID:', user.uid);
-  }
+  const userCredential = await googleSignIn();
+  // User successfully signed in
+  console.log('User ID:', userCredential.user.uid);
+  console.log('User Email:', userCredential.user.email);
 } catch (error) {
-  console.error('Sign-in error:', error);
+  // Error is an instance of AppError with code and message
+  console.error('Sign-in error:', {
+    code: error.code,
+    message: error.message
+  });
+  
+  // You can handle specific error cases
+  switch (error.code) {
+    case GoogleSignInErrorCode.SIGN_IN_CANCELLED:
+      console.log('User cancelled the sign-in');
+      break;
+    case GoogleSignInErrorCode.PLAY_SERVICES_NOT_AVAILABLE:
+      console.log('Play Services not available or outdated');
+      break;
+    case GoogleSignInErrorCode.NETWORK_ERROR:
+      console.log('Network error occurred');
+      break;
+    case GoogleSignInErrorCode.INVALID_CREDENTIALS:
+      console.log('Invalid credentials');
+      break;
+    default:
+      console.log('Sign-in failed:', error.message);
+  }
 }
 ```
 
