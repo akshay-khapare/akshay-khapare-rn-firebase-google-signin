@@ -1,0 +1,44 @@
+{
+  "name": "@akshay-khapare/rn-firebase-google-signin",
+  "version": "1.0.0",
+  "description": "A simple React Native package for Google Sign-In integration with Firebase",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native",
+    "firebase",
+    "google-signin",
+    "authentication",
+    "typescript"
+  ],
+  "author": {
+    "name": "Akshay Khapare",
+    "email": "akshaykhapare.dev@gmail.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akshay-khapare/@akshay-khapare/rn-firebase-google-signin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/akshay-khapare/@akshay-khapare/rn-firebase-google-signin/issues"
+  },
+  "homepage": "https://github.com/akshay-khapare/@akshay-khapare/rn-firebase-google-signin#readme",
+  "peerDependencies": {
+    "@react-native-firebase/app": ">=18.0.0",
+    "@react-native-firebase/auth": ">=18.0.0",
+    "@react-native-google-signin/google-signin": "^13.1.0",
+    "react": ">=16.8.0",
+    "react-native": ">=0.60.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-native": "^0.72.0",
+    "typescript": "^5.0.0"
+  }
+}
