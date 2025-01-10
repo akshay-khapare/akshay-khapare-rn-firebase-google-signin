@@ -94,38 +94,41 @@ init({
 ### Sign In
 
 ```typescript
-import { googleSignIn, GoogleSignInErrorCode } from '@akshay-khapare/rn-firebase-google-signin';
+import { googleSignIn, GoogleSignInErrorCode, AppError } from '@akshay-khapare/rn-firebase-google-signin';
 
-try {
-  const userCredential = await googleSignIn();
-  // User successfully signed in
-  console.log('User ID:', userCredential.user.uid);
-  console.log('User Email:', userCredential.user.email);
-} catch (error) {
-  // Error is an instance of AppError with code and message
-  console.error('Sign-in error:', {
-    code: error.code,
-    message: error.message
-  });
-  
-  // You can handle specific error cases
-  switch (error.code) {
-    case GoogleSignInErrorCode.SIGN_IN_CANCELLED:
-      console.log('User cancelled the sign-in');
-      break;
-    case GoogleSignInErrorCode.PLAY_SERVICES_NOT_AVAILABLE:
-      console.log('Play Services not available or outdated');
-      break;
-    case GoogleSignInErrorCode.NETWORK_ERROR:
-      console.log('Network error occurred');
-      break;
-    case GoogleSignInErrorCode.INVALID_CREDENTIALS:
-      console.log('Invalid credentials');
-      break;
-    default:
-      console.log('Sign-in failed:', error.message);
+const handleGoogleSignIn = async () => {
+  try {
+    const userCredential = await googleSignIn();
+    console.log('User ID:', userCredential.user.uid);
+    console.log('User Email:', userCredential.user.email);
+    
+    // Handle successful sign-in
+    return userCredential;
+  } catch (error) {
+    if (error instanceof AppError) {
+      switch (error.code) {
+        case GoogleSignInErrorCode.NO_ID_TOKEN:
+          console.error('Failed to get ID token from Google');
+          // Handle missing ID token error
+          break;
+          
+        case GoogleSignInErrorCode.USER_CREDENTIAL_INVALID:
+          console.error('Invalid user credentials');
+          // Handle invalid user credential error
+          break;
+          
+        case GoogleSignInErrorCode.PLAY_SERVICES_NOT_AVAILABLE:
+          console.error('Google Play Services not available or outdated');
+          // Prompt user to install/update Google Play Services
+          break;
+      }
+    } else {
+      console.error('Unexpected error during sign-in:', error);
+      // Handle unexpected errors
+    }
+    throw error; // Re-throw if you want to handle it at a higher level
   }
-}
+};
 ```
 
 ### Sign Out
@@ -133,12 +136,16 @@ try {
 ```typescript
 import { signOut } from '@akshay-khapare/rn-firebase-google-signin';
 
-try {
-  await signOut();
-  // User successfully signed out
-} catch (error) {
-  console.error('Sign-out error:', error);
-}
+const handleSignOut = async () => {
+  try {
+    await signOut();
+    console.log('User successfully signed out');
+    // Handle successful sign-out
+  } catch (error) {
+    console.error('Sign-out failed:', error);
+    // Handle sign-out error
+  }
+};
 ```
 
 ### Check Play Services
@@ -146,12 +153,16 @@ try {
 ```typescript
 import { checkPlayServices } from '@akshay-khapare/rn-firebase-google-signin';
 
-try {
-  await checkPlayServices();
-  // Play Services is available and up to date
-} catch (error) {
-  console.error('Play Services error:', error);
-}
+const handleCheckPlayServices = async () => {
+  try {
+    await checkPlayServices();
+    console.log('Play Services is available and up to date');
+    // Handle successful check
+  } catch (error) {
+    console.error('Play Services error:', error);
+    // Handle Play Services error
+  }
+};
 ```
 
 ## API Reference
@@ -195,30 +206,54 @@ Checks if Google Play Services is available and up to date.
 
 #### `GoogleSignInErrorCode`
 Enum of possible error codes:
-- `SIGN_IN_CANCELLED`
-- `SIGN_IN_FAILED`
-- `IN_PROGRESS`
-- `PLAY_SERVICES_NOT_AVAILABLE`
-- `NETWORK_ERROR`
-- `INVALID_CREDENTIALS`
 - `NO_ID_TOKEN`
-- `SIGN_OUT_FAILED`
+- `USER_CREDENTIAL_INVALID`
+- `PLAY_SERVICES_NOT_AVAILABLE`
 
 ## Error Handling
 
-The package uses custom `AppError` class for error handling:
+The package throws `AppError` instances with specific error codes defined in `GoogleSignInErrorCode`:
+
+### Available Error Codes
 
 ```typescript
-class AppError extends Error {
-  code?: string;
-  // The error code will be one of GoogleSignInErrorCode values
+enum GoogleSignInErrorCode {
+  NO_ID_TOKEN = "NO_ID_TOKEN",                           // When Google Sign-In fails to provide an ID token
+  USER_CREDENTIAL_INVALID = "USER_CREDENTIAL_INVALID",    // When Firebase fails to validate the user credential
+  PLAY_SERVICES_NOT_AVAILABLE = "PLAY_SERVICES_NOT_AVAILABLE" // When Google Play Services is missing or outdated
 }
 ```
 
-## License
+### Error Scenarios
 
-MIT
+1. **NO_ID_TOKEN**
+   - Occurs when Google Sign-In succeeds but fails to provide an ID token
+   - Usually indicates an authentication flow issue
+
+2. **USER_CREDENTIAL_INVALID**
+   - Occurs when Firebase cannot validate the Google credential
+   - May indicate invalid or expired credentials
+
+3. **PLAY_SERVICES_NOT_AVAILABLE**
+   - Occurs when Google Play Services is not installed or needs updating
+   - Common on devices without Google Play Services or with outdated versions
+
+## TypeScript Support
+
+The package includes TypeScript definitions. Import types directly:
+
+```typescript
+import { 
+  GoogleSignInConfig, 
+  AppError, 
+  GoogleSignInErrorCode 
+} from '@akshay-khapare/rn-firebase-google-signin';
+```
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+MIT
